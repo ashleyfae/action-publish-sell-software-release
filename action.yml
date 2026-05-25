@@ -13,6 +13,10 @@ inputs:
   releasable-id:
     description: 'The numeric ID of the releasable record on the software platform.'
     required: true
+  release-version:
+    description: 'The release version/tag name. Defaults to the tag from the release event. Override this for workflow_dispatch triggers.'
+    required: false
+    default: ${{ github.event.release.tag_name }}
   pre-release:
     description: 'Whether this is a pre-release.'
     required: false
@@ -31,7 +35,7 @@ runs:
         RELEASABLE_TYPE: ${{ inputs.releasable-type }}
         RELEASABLE_ID: ${{ inputs.releasable-id }}
         README_FILE: ${{ inputs.readme-file }}
-        RELEASE_VERSION: ${{ github.event.release.tag_name }}
+        RELEASE_VERSION: ${{ inputs.release-version }}
         PRE_RELEASE: ${{ inputs.pre-release }}
         GIT_REPO: ${{ github.repository }}
         SOFTWARE_API_BASE_URL: ${{ env.SOFTWARE_API_BASE_URL }}

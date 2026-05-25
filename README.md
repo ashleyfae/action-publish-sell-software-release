@@ -53,12 +53,23 @@ Configure the following in your repository settings:
 
 Copy and paste this into `.github/workflows/deploy.yml` in your plugin repository. Set `releasable-id` to your product's ID on the software platform.
 
+The workflow supports both automatic deployment on release publish and manual dispatch (useful for redeploying an existing release without creating a new one).
+
 ```yaml
 name: Deploy Release
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name to deploy (e.g. 1.2.0)'
+        required: true
+      pre_release:
+        description: 'Is this a pre-release?'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -72,18 +83,20 @@ jobs:
         uses: ashleyfae/action-build-release-zip@main
         with:
           composer-install: 'false'
+          tag-name: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Publish release to software platform
         uses: ashleyfae/action-publish-sell-software-release@main
         with:
           asset-url: ${{ steps.build-zip.outputs.asset-url }}
           file-name: ${{ steps.build-zip.outputs.file-name }}
-          pre-release: ${{ github.event.release.prerelease }}
+          release-version: ${{ inputs.tag_name || github.event.release.tag_name }}
+          pre-release: ${{ inputs.pre_release || github.event.release.prerelease || 'false' }}
           releasable-type: 'product'
           releasable-id: '1'
         env:
