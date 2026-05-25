@@ -40,5 +40,6 @@ runs:
         GIT_REPO: ${{ github.repository }}
         SOFTWARE_API_BASE_URL: ${{ env.SOFTWARE_API_BASE_URL }}
         SOFTWARE_API_TOKEN: ${{ env.SOFTWARE_API_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
       shell: bash
       run: node ${{ github.action_path }}/publish-release.js

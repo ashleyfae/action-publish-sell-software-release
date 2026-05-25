@@ -151,7 +151,52 @@ function escapeHtml(text) {
 }
 
 // ============================================================================
-// PART 4: API Request
+// PART 4: Fetch GitHub Release Date
+// ============================================================================
+
+function fetchGitHubReleaseDate(repo, tag, token) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'api.github.com',
+      path: `/repos/${repo}/releases/tags/${tag}`,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`,
+        'User-Agent': 'action-publish-sell-software-release',
+        'X-GitHub-Api-Version': '2022-11-28',
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            const json = JSON.parse(body);
+            resolve(json.published_at || null);
+          } catch {
+            resolve(null);
+          }
+        } else {
+          console.warn(`Could not fetch GitHub release for tag '${tag}' (HTTP ${res.statusCode}); created_at will not be set.`);
+          resolve(null);
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      console.warn(`GitHub API request error: ${error.message}; created_at will not be set.`);
+      resolve(null);
+    });
+
+    req.end();
+  });
+}
+
+// ============================================================================
+// PART 5: API Request
 // ============================================================================
 
 function makeApiRequest(data, token, baseUrl) {
@@ -213,7 +258,7 @@ function makeApiRequest(data, token, baseUrl) {
 }
 
 // ============================================================================
-// PART 5: Main Execution
+// PART 6: Main Execution
 // ============================================================================
 
 async function main() {
@@ -223,6 +268,15 @@ async function main() {
     const requirements = parseRequirements(process.env.README_FILE);
     const notes = parseChangelog(process.env.README_FILE);
 
+    const publishedAt = await fetchGitHubReleaseDate(
+      process.env.GIT_REPO,
+      process.env.RELEASE_VERSION,
+      process.env.GITHUB_TOKEN
+    );
+    if (publishedAt) {
+      console.log(`Using release published_at: ${publishedAt}`);
+    }
+
     const requestData = {
       releasable_type: process.env.RELEASABLE_TYPE,
       releasable_id: parseInt(process.env.RELEASABLE_ID, 10),
@@ -231,6 +285,7 @@ async function main() {
       git_asset_url: process.env.ASSET_URL,
       notes: notes || null,
       pre_release: process.env.PRE_RELEASE === 'true',
+      created_at: publishedAt,
     };
 
     if (requirements) {
