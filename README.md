@@ -150,8 +150,8 @@ This produces:
 
 ```json
 [
-  { "name": "WordPress", "version": "5.0" },
-  { "name": "PHP", "version": "8.0" }
+  { "name": "wp", "version": "5.0" },
+  { "name": "php", "version": "8.0" }
 ]
 ```
 
@@ -192,8 +192,8 @@ The action sends a `POST` request to `{SOFTWARE_API_BASE_URL}/api/releases` with
   "git_asset_url": "https://api.github.com/repos/owner/my-plugin/releases/assets/12345",
   "notes": "<ul>\n  <li>Fix: some bug</li>\n</ul>",
   "requirements": [
-    { "name": "WordPress", "version": "5.0" },
-    { "name": "PHP", "version": "8.0" }
+    { "name": "wp", "version": "5.0" },
+    { "name": "php", "version": "8.0" }
   ],
   "pre_release": false
 }

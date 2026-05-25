@@ -53,13 +53,13 @@ function parseRequirements(readmeFilePath) {
     // Parse "Requires at least: X.X" for WordPress version
     const wpMatch = content.match(/^Requires at least:\s*(.+)$/im);
     if (wpMatch) {
-      requirements.push({ name: 'WordPress', version: wpMatch[1].trim() });
+      requirements.push({ name: 'wp', version: wpMatch[1].trim() });
     }
 
     // Parse "Requires PHP: X.X" for PHP version
     const phpMatch = content.match(/^Requires PHP:\s*(.+)$/im);
     if (phpMatch) {
-      requirements.push({ name: 'PHP', version: phpMatch[1].trim() });
+      requirements.push({ name: 'php', version: phpMatch[1].trim() });
     }
 
     if (requirements.length === 0) {
