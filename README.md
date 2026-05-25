@@ -48,6 +48,7 @@ Configure the following in your repository settings:
 |------|------|-------------|
 | `SOFTWARE_API_TOKEN` | Secret | Sanctum bearer token for the software platform API |
 | `SOFTWARE_API_BASE_URL` | Variable | Base URL of your software platform (e.g. `https://software.example.com`) |
+| `SOFTWARE_PRODUCT_ID` | Variable | Numeric ID of the product on the software platform |
 
 ## Example Workflow
 
@@ -98,7 +99,7 @@ jobs:
           release-version: ${{ inputs.tag_name || github.event.release.tag_name }}
           pre-release: ${{ inputs.pre_release || github.event.release.prerelease || 'false' }}
           releasable-type: 'product'
-          releasable-id: '1'
+          releasable-id: ${{ vars.SOFTWARE_PRODUCT_ID }}
         env:
           SOFTWARE_API_BASE_URL: ${{ vars.SOFTWARE_API_BASE_URL }}
           SOFTWARE_API_TOKEN: ${{ secrets.SOFTWARE_API_TOKEN }}
@@ -126,7 +127,7 @@ If your plugin requires Composer dependencies:
           file-name: ${{ steps.build-zip.outputs.file-name }}
           pre-release: ${{ github.event.release.prerelease }}
           releasable-type: 'product'
-          releasable-id: '1'
+          releasable-id: ${{ vars.SOFTWARE_PRODUCT_ID }}
           readme-file: 'docs/readme.txt'
         env:
           SOFTWARE_API_BASE_URL: ${{ vars.SOFTWARE_API_BASE_URL }}
