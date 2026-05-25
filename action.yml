@@ -1,0 +1,40 @@
+name: 'Publish Sell Software Release'
+description: 'Publishes a new plugin release to a Laravel sell-software platform via the laravel-git-releases API.'
+inputs:
+  asset-url:
+    description: 'API URL to GET the release zip asset (from action-build-release-zip outputs.asset-url).'
+    required: true
+  file-name:
+    description: 'Name of the release zip file.'
+    required: true
+  releasable-type:
+    description: 'The releasable model type on the software platform (e.g. "product").'
+    required: true
+  releasable-id:
+    description: 'The numeric ID of the releasable record on the software platform.'
+    required: true
+  pre-release:
+    description: 'Whether this is a pre-release.'
+    required: false
+    default: 'false'
+  readme-file:
+    description: 'Relative path to your readme.txt file.'
+    required: false
+    default: 'readme.txt'
+runs:
+  using: 'composite'
+  steps:
+    - name: Publish release to sell-software platform
+      env:
+        ASSET_URL: ${{ inputs.asset-url }}
+        FILE_NAME: ${{ inputs.file-name }}
+        RELEASABLE_TYPE: ${{ inputs.releasable-type }}
+        RELEASABLE_ID: ${{ inputs.releasable-id }}
+        README_FILE: ${{ inputs.readme-file }}
+        RELEASE_VERSION: ${{ github.event.release.tag_name }}
+        PRE_RELEASE: ${{ inputs.pre-release }}
+        GIT_REPO: ${{ github.repository }}
+        SOFTWARE_API_BASE_URL: ${{ env.SOFTWARE_API_BASE_URL }}
+        SOFTWARE_API_TOKEN: ${{ env.SOFTWARE_API_TOKEN }}
+      shell: bash
+      run: node ${{ github.action_path }}/publish-release.js
